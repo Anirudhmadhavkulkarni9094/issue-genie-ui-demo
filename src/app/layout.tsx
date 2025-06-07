@@ -1,4 +1,5 @@
-// app/layout.tsx or app/layout.js
+"use client"
+
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import { Jost } from "next/font/google";
@@ -6,34 +7,29 @@ import SideBar from "@/components/SideBar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { useState } from "react";
 
 const jost = Jost({
   subsets: ["latin"],
-  weight: ["400", "500", "700"], // Add other weights if needed
+  weight: ["400", "500", "700"],
   display: "swap",
 });
 
-export const metadata = {
-  title: "My App",
-  description: "Using Jost font with Next.js App Router",
-};
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
   return (
     <html lang="en" className={jost.className}>
       <ThemeProvider>
-        <Navbar></Navbar>
-        <body>
+        <body className="flex flex-col">
+          {/* Navbar with toggle handler */}
+          <Navbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
           <div className="flex">
-            <SideBar />
-            {children}
+            <SideBar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <main className="flex-1">{children}</main>
           </div>
+          <ToastContainer position="top-right" autoClose={3000} />
         </body>
-        <ToastContainer position="top-right" autoClose={3000} />
       </ThemeProvider>
     </html>
   );
