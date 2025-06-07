@@ -41,9 +41,10 @@ export default function Home() {
           {/* Ask Mentor Section */}
           <form onSubmit={handleTicketSubmit} className="bg-white dark:bg-[#222] shadow-md rounded p-5">
             <h2 className="font-semibold text-lg mb-3">✨ Ask Your Mentor</h2>
-            <input
+            <textarea
+              rows={4}
               className="w-full border p-3 rounded resize-none mb-4 bg-white dark:bg-[#333] text-black dark:text-white"
-              placeholder="Describe your query or challenge..."
+              placeholder="E.g. I'm experiencing issues with React state management—my component re-renders too many times whenever I update the state using useState."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               required
