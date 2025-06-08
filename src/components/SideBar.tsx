@@ -3,10 +3,11 @@ import Image from 'next/image'
 import React from 'react'
 import { Home, Ticket, Users, BookOpen, Menu, X } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
+import Link from 'next/link'
 
 const navItems = [
-  { label: 'Dashboard', icon: <Home size={20} />, route: '#' },
-  { label: 'My Tickets', icon: <Ticket size={20} />, route: '#' },
+  { label: 'Dashboard', icon: <Home size={20} />, route: '/' },
+  { label: 'My Tickets', icon: <Ticket size={20} />, route: 'my-tickets' },
   { label: 'Mentor +', icon: <Users size={20} />, route: '#' },
   { label: 'Learning Materials', icon: <BookOpen size={20} />, route: '#' },
 ]
@@ -52,7 +53,7 @@ function SideBar({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) 
             <div key={index} className="flex justify-between items-center cursor-pointer hover:opacity-90">
               <div className="flex items-center gap-3">
                 {item.icon}
-                <span className="text-base font-medium">{item.label}</span>
+                <Link href={item.route} className="text-base font-medium">{item.label}</Link>
               </div>
               <Menu size={18} />
             </div>
