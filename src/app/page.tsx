@@ -66,20 +66,6 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
   });
 };
 
-const [historyTickets, setHistoryTickets] = useState<Ticket[]>([]);
-
-
-useEffect(() => {
-  const fetchHistory = async () => {
-    try {
-      const tickets = await fakeHistoryCall();
-      setHistoryTickets(tickets);
-    } catch {
-      toast.error("⚠️ Failed to load ticket history");
-    }
-  };
-  fetchHistory();
-}, []);
 
   const fakeApiCall = (
     query: string
@@ -129,7 +115,7 @@ useEffect(() => {
     const existing: Ticket[] = JSON.parse(
       localStorage.getItem("submittedTickets") || "[]"
     );
-    const updated = [confirmedTicket, ...existing];
+    const updated = [confirmedTicket];
     localStorage.setItem("submittedTickets", JSON.stringify(updated));
 
     setSavedTicket(confirmedTicket);
