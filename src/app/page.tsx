@@ -86,11 +86,19 @@ export default function Home() {
       toast.error("❌ Something went wrong submitting the ticket.");
     }
   };
+  const [showMentor, setShowMentor] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowMentor((prev) => !prev);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex w-full">
       <div className="flex-1 min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300 text-black dark:text-white">
-        
         <div className="relative z-20">
           <div className="p-6 space-y-6">
             <div
@@ -109,7 +117,62 @@ export default function Home() {
               onSubmit={handleTicketSubmit}
               className="bg-white dark:bg-[#222] shadow-md rounded p-5"
             >
-              <h2 className="font-semibold text-lg mb-3">✨ Ask Your Mentor</h2>
+              <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                ✨
+                <span className="text-xl flex items-center gap-1">
+                  Ask your
+                  <span className="relative w-28 h-6 perspective text-yellow-400">
+                    <span
+                      className={`flip-word ${showMentor ? "flipped" : ""}`}
+                    >
+                      <span className="flip-front absolute inset-0 flex items-center justify-center">
+                        Mentor
+                      </span>
+                      <span className="flip-back absolute inset-0 flex items-center justify-center">
+                        Genie
+                      </span>
+                    </span>
+                  </span>
+                  →
+                </span>
+                <style jsx>{`
+                  .perspective {
+                    perspective: 500px;
+                    display: inline-block;
+                    position: relative;
+                  }
+
+                  .flip-word {
+                    display: inline-block;
+                    width: 100%;
+                    height: 100%;
+                    transition: transform 0.6s ease-in-out;
+                    transform-style: preserve-3d;
+                    position: relative;
+                  }
+
+                  .flipped {
+                    transform: rotateX(180deg);
+                  }
+
+                  .flip-front,
+                  .flip-back {
+                    backface-visibility: hidden;
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    top: 0;
+                    left: 0;
+                    font-weight: 600;
+                    font-size: 2rem;
+                    user-select: none;
+                  }
+
+                  .flip-back {
+                    transform: rotateX(180deg);
+                  }
+                `}</style>
+              </h2>
 
               <input
                 type="text"
@@ -122,7 +185,7 @@ export default function Home() {
               <TextareaAutosize
                 minRows={4}
                 className="w-full border p-3 rounded mb-4 bg-white dark:bg-[#333] text-black dark:text-white"
-                placeholder="Describe your issue or question in detail."
+                placeholder="e.g. Having trouble managing React state across components using react useState hook."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
