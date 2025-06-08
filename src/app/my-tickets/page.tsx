@@ -1,4 +1,5 @@
 "use client";
+import { useTheme } from "@/context/ThemeContext";
 import React, { useState } from "react";
 
 const initialTasks = [
@@ -59,23 +60,30 @@ const TodoBoard = () => {
   const [tasks] = useState(initialTasks);
   const [showActive, setShowActive] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
-
+const { theme } = useTheme(); // Assuming useTheme is defined in your context
   return (
+    <div className="relative z-10">
+
+        <div
+          className={`w-full left-0 absolute h-1/2 z-2 ${
+            theme === "light" ? "bg-white" : "bg-[#28304E]"
+          } z-0`}
+        ></div>
     <div className="min-h-screen px-6 py-10 bg-white">
       {/* Active Tickets Accordion */}
-      <div>
+      <div className="relative z-10">
         <button
           onClick={() => setShowActive(!showActive)}
           className="flex justify-between items-center w-full text-left mb-4"
         >
-          <h2 className="text-xl font-bold">
+          <h2 className={`text-xl font-bold ${theme === "light" ? "text-black" : "text-white"}`}>
             Active Tickets ({tasks.length})
           </h2>
           <span className="text-2xl">{showActive ? "▴" : "▾"}</span>
         </button>
 
         {showActive && (
-          <div className="flex gap-4 flex-wrap lg:flex-nowrap">
+            <div className="flex gap-4 flex-wrap lg:flex-nowrap">
             {Object.keys(statusTitles).map((status) => (
               <div key={status} className="flex-1">
                 <div className="bg-gray-50 rounded shadow p-4 min-h-[400px]">
@@ -93,8 +101,8 @@ const TodoBoard = () => {
                     {tasks
                       .filter((task) => task.status === status)
                       .map((task) => (
-                        <TaskCard key={task.id} task={task} status={status as Status} />
-                      ))}
+                          <TaskCard key={task.id} task={task} status={status as Status} />
+                        ))}
                   </div>
                 </div>
               </div>
@@ -108,20 +116,21 @@ const TodoBoard = () => {
         <button
           onClick={() => setShowCompleted(!showCompleted)}
           className="flex justify-between items-center w-full text-left"
-        >
+          >
           <h2 className="text-xl font-bold">Completed Tickets ({completedTasks.length})</h2>
           <span className="text-2xl">{showCompleted ? "▴" : "▾"}</span>
         </button>
 
         {showCompleted && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             {completedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} status="completed" />
+                <TaskCard key={task.id} task={task} status="completed" />
             ))}
           </div>
         )}
       </div>
     </div>
+        </div>
   );
 };
 
