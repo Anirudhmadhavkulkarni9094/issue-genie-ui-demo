@@ -26,7 +26,7 @@ toggleTheme()
     <div
       className={clsx(
         'w-16 h-7 rounded-full cursor-pointer transition-colors relative overflow-hidden',
-        theme === 'light' ? 'bg-gradient-to-r from-yellow-200 to-yellow-400' : 'bg-gradient-to-r from-gray-800 to-blue-900'
+        theme === 'light' ? 'bg-gradient-to-r from-orange-200 to-orange-400' : 'bg-gradient-to-r from-gray-800 to-blue-900'
       )}
       onClick={toggleThemeFun}
     >
@@ -40,7 +40,7 @@ toggleTheme()
         )}
       >
         {theme === 'light' ? (
-          <Sun size={12} className="text-yellow-500" />
+          <Sun size={12} className="text-orange-500" />
         ) : (
           <Moon size={12} className="text-white" />
         )}

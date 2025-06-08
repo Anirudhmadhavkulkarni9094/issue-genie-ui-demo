@@ -195,7 +195,7 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
                 ✨
                 <span className="text-xl flex items-center gap-1">
                   Ask your
-                  <span className="relative w-16 h-6 perspective text-yellow-400 ml-1">
+                  <span className="relative w-16 h-6 perspective text-orange-500 ml-1">
                     <span
                       className={`flip-word ${showMentor ? "flipped" : ""}`}
                     >
@@ -223,7 +223,7 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
                   disabled={!query.trim()}
                   className={`px-4 py-2 rounded text-white transition-all ${
                     query.trim()
-                      ? "bg-[#2C66BA]"
+                      ? "bg-orange-500"
                       : "bg-gray-400 cursor-not-allowed"
                   }`}
                 >
