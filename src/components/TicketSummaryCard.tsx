@@ -5,6 +5,7 @@ interface TicketSummaryCardProps {
   title: string;
   description: string;
   date?: string; // optional, defaults to current date or a fixed date
+  history? : boolean;
 }
 
 function TicketSummaryCard({
@@ -12,6 +13,7 @@ function TicketSummaryCard({
   title,
   description,
   date = "May 2, 2025",
+  history = false, // default to false if not provided
 }: TicketSummaryCardProps) {
   return (
     <div>
@@ -23,9 +25,9 @@ function TicketSummaryCard({
         )}
         <h3 className="text-lg font-semibold">{title}</h3>
         <p className="text-sm text-gray-700 mt-1">{description}</p>
-        <button className="mt-3 px-4 py-1 bg-[#2C66BA] text-white rounded text-sm ">
+        {!history && <button className="mt-3 px-4 py-1 bg-[#2C66BA] text-white rounded text-sm ">
           Connect with mentor →
-        </button>
+        </button>}
       </div>
     </div>
   );

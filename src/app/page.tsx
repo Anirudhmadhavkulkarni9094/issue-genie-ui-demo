@@ -11,95 +11,177 @@ interface Ticket {
   ticket_id: number;
   title: string;
   description: string;
+  tags?: string;
+  category?: string;
   date?: string;
 }
 
 export default function Home() {
-  const [showTicketSummary, setShowTicketSummary] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [title, setTitle] = useState("");
   const [query, setQuery] = useState("");
-  const [tags, setTags] = useState("");
-  const [category, setCategory] = useState("");
-  const [apiResponse, setApiResponse] = useState<Ticket | null>(null);
-
-  const { theme } = useTheme();
-
-  // Now history is an array for multiple tickets
+  const [ticketFields, setTicketFields] = useState({
+    title: "",
+    description: "",
+    tags: "",
+    category: "",
+  });
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [showTicketSummary, setShowTicketSummary] = useState(false);
+  const [savedTicket, setSavedTicket] = useState<Ticket | null>(null);
   const [history, setHistory] = useState<Ticket[]>([]);
-
-  // Fake API to fetch previous tickets (history)
-  const fetchPreviousTickets = (): Promise<Ticket[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            ticket_id: 101,
-            title: "Previous Ticket 1",
-            description: "Description for previous ticket 1",
-            date: "2025-06-01",
-          },
-        ]);
-      }, 1500); // 1.5 seconds delay to simulate network
-    });
-  };
-
-  useEffect(() => {
-    // Fetch previous tickets on mount and set to history
-    fetchPreviousTickets()
-      .then((tickets) => {
-        setHistory(tickets);
-      })
-      .catch(() => {
-        // Optionally handle fetch error
-        toast.error("Failed to load previous tickets");
-      });
-  }, []);
-
-  const handleTicketSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!title.trim() || !query.trim()) return;
-    setPreviewOpen(true);
-  };
-
-  const fakeApiCall = (): Promise<Ticket> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          ticket_id: Math.floor(Math.random() * 1000) + 200, // random new id
-          title: title,
-          description: "AI enhanced description",
-          date: new Date().toLocaleDateString(),
-        });
-      }, 1000);
-    });
-  };
-
-  const handleConfirm = async () => {
-    setPreviewOpen(false);
-    try {
-      const response = await fakeApiCall();
-      setApiResponse(response);
-      setShowTicketSummary(true);
-      toast.success("🎉 Ticket Confirmed & Submitted!");
-    } catch (error) {
-      toast.error("❌ Something went wrong submitting the ticket.");
-    }
-  };
+  const { theme } = useTheme();
   const [showMentor, setShowMentor] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setShowMentor((prev) => !prev);
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("submittedTickets");
+    if (stored) {
+      try {
+        setHistory(JSON.parse(stored));
+      } catch {
+        toast.error("⚠️ Failed to load ticket history");
+      }
+    }
+  }, []);
+
+const fakeHistoryCall = (): Promise<Ticket[]> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        {
+          ticket_id: 201,
+          title: "Issue with React Hooks",
+          description: "Having trouble with useEffect dependencies.",
+          tags: "React, Hooks",
+          category: "Technical",
+          date: "May 1, 2025",
+        },
+      ]);
+    }, 1000);
+  });
+};
+
+const [historyTickets, setHistoryTickets] = useState<Ticket[]>([]);
+
+
+useEffect(() => {
+  const fetchHistory = async () => {
+    try {
+      const tickets = await fakeHistoryCall();
+      setHistoryTickets(tickets);
+    } catch {
+      toast.error("⚠️ Failed to load ticket history");
+    }
+  };
+  fetchHistory();
+}, []);
+
+  const fakeApiCall = (
+    query: string
+  ): Promise<{
+    title: string;
+    description: string;
+    tags: string;
+    category: string;
+  }> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          title: "User Submitted Ticket",
+          description: "AI generated description based on user query",
+          tags: "AI, React, Ticketing",
+          category: "Technical",
+        });
+      }, 1000);
+    });
+  };
+
+  const handleTicketSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    try {
+      const result = await fakeApiCall(query);
+      setTicketFields(result);
+      setPreviewOpen(true);
+    } catch {
+      toast.error("❌ Failed to generate ticket");
+    }
+  };
+
+  const handleConfirm = (data: {
+    title: string;
+    description: string;
+    tags: string;
+    category: string;
+  }) => {
+    const confirmedTicket: Ticket = {
+      ...data,
+      ticket_id: Math.floor(Math.random() * 1000) + 200,
+      date: new Date().toLocaleDateString(),
+    };
+
+    const existing: Ticket[] = JSON.parse(
+      localStorage.getItem("submittedTickets") || "[]"
+    );
+    const updated = [confirmedTicket, ...existing];
+    localStorage.setItem("submittedTickets", JSON.stringify(updated));
+
+    setSavedTicket(confirmedTicket);
+    setShowTicketSummary(true);
+    setPreviewOpen(false);
+    toast.success("🎉 Ticket Confirmed & Saved!");
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowMentor((prev) => !prev);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+
+
   return (
     <div className="flex w-full">
+      <style>{`
+        .perspective {
+          perspective: 600px;
+        }
+        .flip-word {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: inline-block;
+          transform-style: preserve-3d;
+          transition: transform 0.7s ease-in-out;
+        }
+          
+        .flip-word.flipped {
+          transform: rotateX(180deg);
+        }
+        .flip-front, .flip-back {
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .flip-back {
+          transform: rotateX(180deg);
+        }
+      `}</style>
       <div className="flex-1 min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300 text-black dark:text-white">
-        
         <div
           className={`w-full left-0 absolute h-1/2 ${
             theme === "light" ? "bg-white" : "bg-[#28304E]"
@@ -110,7 +192,7 @@ export default function Home() {
             <div
               className={`${theme === "light" ? "text-black" : "text-white"}`}
             >
-              <h1 className="text-2xl font-semibold ">
+              <h1 className="text-2xl font-semibold">
                 Hi, John <span className="inline-block">👋</span>
               </h1>
               <p>
@@ -127,98 +209,34 @@ export default function Home() {
                 ✨
                 <span className="text-xl flex items-center gap-1">
                   Ask your
-                  <span className="relative w-28 h-6 perspective text-yellow-400">
+                  <span className="relative w-16 h-6 perspective text-yellow-400 ml-1">
                     <span
                       className={`flip-word ${showMentor ? "flipped" : ""}`}
                     >
-                      <span className="flip-front absolute inset-0 flex items-center justify-center">
+                      <span className="flip-front absolute inset-0">
                         Mentor
                       </span>
-                      <span className="flip-back absolute inset-0 flex items-center justify-center">
-                        Genie
-                      </span>
+                      <span className="flip-back absolute inset-0">Genie</span>
                     </span>
                   </span>
                   →
                 </span>
-                <style jsx>{`
-                  .perspective {
-                    perspective: 500px;
-                    display: inline-block;
-                    position: relative;
-                  }
-
-                  .flip-word {
-                    display: inline-block;
-                    width: 100%;
-                    height: 100%;
-                    transition: transform 0.6s ease-in-out;
-                    transform-style: preserve-3d;
-                    position: relative;
-                  }
-
-                  .flipped {
-                    transform: rotateX(180deg);
-                  }
-
-                  .flip-front,
-                  .flip-back {
-                    backface-visibility: hidden;
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    top: 0;
-                    left: 0;
-                    font-weight: 600;
-                    font-size: 2rem;
-                    user-select: none;
-                  }
-
-                  .flip-back {
-                    transform: rotateX(180deg);
-                  }
-                `}</style>
               </h2>
-
-              <input
-                type="text"
-                className="w-full border p-3 rounded mb-4 bg-white dark:bg-[#333] text-black dark:text-white"
-                placeholder="Ticket Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
 
               <TextareaAutosize
                 minRows={4}
                 className="w-full border p-3 rounded mb-4 bg-white dark:bg-[#333] text-black dark:text-white"
-                placeholder="e.g. Having trouble managing React state across components using react useState hook."
+                placeholder="e.g. Having trouble managing React state across components using useState hook."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
 
-              <input
-                type="text"
-                className="w-full border p-3 rounded mb-4 bg-white dark:bg-[#333] text-black dark:text-white"
-                placeholder="Tags (comma separated)"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-              />
-
               <div className="flex gap-3 items-center">
-                <select
-                  className="border rounded px-3 py-2 bg-white dark:bg-[#333] text-black dark:text-white"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="">Select Category</option>
-                  <option value="Technical">Technical</option>
-                  <option value="Career">Career</option>
-                </select>
                 <button
                   type="submit"
-                  disabled={!title.trim() || !query.trim()}
+                  disabled={!query.trim()}
                   className={`px-4 py-2 rounded text-white transition-all ${
-                    title.trim() && query.trim()
+                    query.trim()
                       ? "bg-[#2C66BA]"
                       : "bg-gray-400 cursor-not-allowed"
                   }`}
@@ -228,16 +246,15 @@ export default function Home() {
               </div>
             </form>
 
-            {showTicketSummary && apiResponse && (
+            {showTicketSummary && savedTicket && (
               <TicketSummaryCard
-                ticket_id={apiResponse.ticket_id}
-                title={apiResponse.title}
-                description={apiResponse.description}
-                date={apiResponse.date}
+                ticket_id={savedTicket.ticket_id}
+                title={savedTicket.title}
+                description={savedTicket.description}
+                date={savedTicket.date}
               />
             )}
 
-            {/* Render previous ticket history */}
             {history.length > 0 && (
               <>
                 <h3 className="mt-10 mb-2 text-lg font-semibold">
@@ -246,6 +263,7 @@ export default function Home() {
                 <div className="space-y-4">
                   {history.map((ticket) => (
                     <TicketSummaryCard
+                      history={true}
                       key={ticket.ticket_id}
                       ticket_id={ticket.ticket_id}
                       title={ticket.title}
@@ -263,10 +281,10 @@ export default function Home() {
           isOpen={previewOpen}
           onClose={() => setPreviewOpen(false)}
           onConfirm={handleConfirm}
-          title={title}
-          description={query}
-          tags={tags}
-          category={category}
+          title={ticketFields.title}
+          description={ticketFields.description}
+          tags={ticketFields.tags}
+          category={ticketFields.category}
         />
       </div>
     </div>
