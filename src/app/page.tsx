@@ -99,6 +99,12 @@ export default function Home() {
   return (
     <div className="flex w-full">
       <div className="flex-1 min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300 text-black dark:text-white">
+        
+        <div
+          className={`w-full left-0 absolute h-1/2 ${
+            theme === "light" ? "bg-white" : "bg-[#28304E]"
+          } z-0`}
+        ></div>
         <div className="relative z-20">
           <div className="p-6 space-y-6">
             <div
