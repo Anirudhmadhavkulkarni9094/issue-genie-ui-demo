@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import TextareaAutosize from "react-textarea-autosize";
+import { UploadCloud, X } from "lucide-react";
 
 interface Ticket {
   ticket_id: number;
@@ -30,11 +31,12 @@ export default function Home() {
   const [history, setHistory] = useState<Ticket[]>([]);
   const { theme } = useTheme();
   const [showMentor, setShowMentor] = useState(true);
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setShowMentor((prev) => !prev);
-    }, 1000);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -48,24 +50,6 @@ export default function Home() {
       }
     }
   }, []);
-
-const fakeHistoryCall = (): Promise<Ticket[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          ticket_id: 201,
-          title: "Issue with React Hooks",
-          description: "Having trouble with useEffect dependencies.",
-          tags: "React, Hooks",
-          category: "Technical",
-          date: "May 1, 2025",
-        },
-      ]);
-    }, 1000);
-  });
-};
-
 
   const fakeApiCall = (
     query: string
@@ -115,7 +99,7 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
     const existing: Ticket[] = JSON.parse(
       localStorage.getItem("submittedTickets") || "[]"
     );
-    const updated = [confirmedTicket];
+    const updated = [confirmedTicket, ...existing];
     localStorage.setItem("submittedTickets", JSON.stringify(updated));
 
     setSavedTicket(confirmedTicket);
@@ -123,24 +107,14 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
     setPreviewOpen(false);
     toast.success("🎉 Ticket Confirmed & Saved!");
     setQuery("");
-  setAttachment(null);
-  setTicketFields({
-    title: "",
-    description: "",
-    tags: "",
-    category: "",
-  });
+    setAttachments([]);
+    setTicketFields({
+      title: "",
+      description: "",
+      tags: "",
+      category: "",
+    });
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setShowMentor((prev) => !prev);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-const [attachment, setAttachment] = useState<File | null>(null);
-
 
   return (
     <div className="flex w-full">
@@ -156,7 +130,6 @@ const [attachment, setAttachment] = useState<File | null>(null);
           transform-style: preserve-3d;
           transition: transform 0.7s ease-in-out;
         }
-          
         .flip-word.flipped {
           transform: rotateX(180deg);
         }
@@ -176,6 +149,7 @@ const [attachment, setAttachment] = useState<File | null>(null);
           transform: rotateX(180deg);
         }
       `}</style>
+
       <div className="flex-1 min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300 text-black dark:text-white">
         <div
           className={`w-full left-0 absolute h-1/2 ${
@@ -184,8 +158,6 @@ const [attachment, setAttachment] = useState<File | null>(null);
         ></div>
         <div className="relative z-20">
           <div className="p-6 space-y-6">
-            
-
             <form
               onSubmit={handleTicketSubmit}
               className="bg-white dark:bg-[#222] shadow-md rounded p-5"
@@ -216,33 +188,82 @@ const [attachment, setAttachment] = useState<File | null>(null);
                 onChange={(e) => setQuery(e.target.value)}
               />
 
-{/* Attachment Upload */}
-<div className="mb-4">
-  <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-    Attach a file <span className="text-gray-400 font-normal">(optional)</span>
-  </label>
-  <div className="relative flex items-center">
-    <input
-      type="file"
-      onChange={(e) => {
-        if (e.target.files && e.target.files[0]) {
-          setAttachment(e.target.files[0]);
-        }
-      }}
-      className="block w-1/5 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-white dark:bg-[#222] dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-    />
-    {attachment && (
-      <span className="ml-3 px-2 py-1 rounded bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 text-xs font-semibold">
-        {attachment.name}
-      </span>
-    )}
-  </div>
-  {attachment && (
-    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-      File attached successfully.
-    </p>
-  )}
-</div>
+              {/* Attachment Upload */}
+              <div className="mb-4">
+               
+
+                <div className="relative flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Upload attachments{" "}
+                    <span className="text-gray-400 font-normal">
+                      (optional)
+                    </span>
+                  </label>
+
+                  {/* File Input Styled as Dropzone */}
+                  <label
+                    htmlFor="file-upload"
+                    className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-[#1e1e1e] hover:border-orange-500 transition"
+                  >
+                    <UploadCloud className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Click or drag files here
+                    </span>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        const files = e.target.files
+                          ? Array.from(e.target.files)
+                          : [];
+                        if (files.length > 0) {
+                          setAttachments((prev) => [
+                            ...prev,
+                            ...files.filter(
+                              (file) =>
+                                !prev.some(
+                                  (f) =>
+                                    f.name === file.name &&
+                                    f.size === file.size &&
+                                    f.lastModified === file.lastModified
+                                )
+                            ),
+                          ]);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {/* File List */}
+                  {attachments.length > 0 && (
+                    <ul className="mt-2 text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                      {attachments.map((file, index) => (
+                        <li
+                          key={index}
+                          className="flex items-center justify-between px-3 py-2 bg-orange-50 dark:bg-orange-950 rounded text-orange-800 dark:text-orange-200"
+                        >
+                          <span className="truncate text-xs font-medium">
+                            {file.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setAttachments((prev) =>
+                                prev.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900 transition"
+                          >
+                            <X className="w-4 h-4 text-red-500" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
 
               <div className="flex gap-3 items-center">
                 <button
