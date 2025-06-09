@@ -122,6 +122,14 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
     setShowTicketSummary(true);
     setPreviewOpen(false);
     toast.success("🎉 Ticket Confirmed & Saved!");
+    setQuery("");
+  setAttachment(null);
+  setTicketFields({
+    title: "",
+    description: "",
+    tags: "",
+    category: "",
+  });
   };
 
   useEffect(() => {
@@ -131,6 +139,7 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
     return () => clearInterval(interval);
   }, []);
 
+const [attachment, setAttachment] = useState<File | null>(null);
 
 
   return (
@@ -175,17 +184,7 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
         ></div>
         <div className="relative z-20">
           <div className="p-6 space-y-6">
-            <div
-              className={`${theme === "light" ? "text-black" : "text-white"}`}
-            >
-              <h1 className="text-2xl font-semibold">
-                Hi, John <span className="inline-block">👋</span>
-              </h1>
-              <p>
-                Ready to learn and grow? Ask your mentor anything or track your
-                progress below.
-              </p>
-            </div>
+            
 
             <form
               onSubmit={handleTicketSubmit}
@@ -216,6 +215,34 @@ const fakeHistoryCall = (): Promise<Ticket[]> => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
+
+{/* Attachment Upload */}
+<div className="mb-4">
+  <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+    Attach a file <span className="text-gray-400 font-normal">(optional)</span>
+  </label>
+  <div className="relative flex items-center">
+    <input
+      type="file"
+      onChange={(e) => {
+        if (e.target.files && e.target.files[0]) {
+          setAttachment(e.target.files[0]);
+        }
+      }}
+      className="block w-1/5 p-2 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-white dark:bg-[#222] dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
+    />
+    {attachment && (
+      <span className="ml-3 px-2 py-1 rounded bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 text-xs font-semibold">
+        {attachment.name}
+      </span>
+    )}
+  </div>
+  {attachment && (
+    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+      File attached successfully.
+    </p>
+  )}
+</div>
 
               <div className="flex gap-3 items-center">
                 <button
