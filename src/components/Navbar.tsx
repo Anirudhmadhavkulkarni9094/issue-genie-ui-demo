@@ -26,7 +26,7 @@ function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
           <Image
             src="/logo-color.png"
             alt="IssueGenie Logo"
-            width={200}
+            width={300}
             height={150}
           />
         </div>

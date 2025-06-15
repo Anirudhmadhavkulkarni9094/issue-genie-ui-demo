@@ -105,7 +105,7 @@ export default function Home() {
     setSavedTicket(confirmedTicket);
     setShowTicketSummary(true);
     setPreviewOpen(false);
-    toast.success("🎉 Ticket Confirmed & Saved!");
+    toast.success("🤖 AI has done its part. Now it's mentor time!");
     setQuery("");
     setAttachments([]);
     setTicketFields({
